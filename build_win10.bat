@@ -2,7 +2,6 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 set "EXE_NAME=bm-mouse-click.exe"
-set "EXE_PATH=dist\%EXE_NAME%"
 set "PIPY="
 
 echo [build_win10] Build Win10: %EXE_NAME%
@@ -13,6 +12,8 @@ if not exist "build" mkdir "build" 2>nul
 if not exist "dist" mkdir "dist" 2>nul
 call :clean_dir_contents "build"
 call :clean_dir_contents "dist"
+if exist "bm-mouse-click.spec" del /f /q "bm-mouse-click.spec" 2>nul
+if exist "bm-mouse-click_win7.spec" del /f /q "bm-mouse-click_win7.spec" 2>nul
 if exist "%EXE_NAME%" del /F /Q "%EXE_NAME%" 2>nul
 
 call :find_python
@@ -21,34 +22,34 @@ if errorlevel 1 goto :end_fail
 echo [build_win10] using:
 %PIPY% -c "import sys; print(sys.executable); print(sys.version)"
 
-%PIPY% -m pip install -r requirements-win10.txt
+%PIPY% -c "import sys; assert sys.version_info>=(3,10), 'need_310_plus'" 2>nul
+if errorlevel 1 (
+  echo [build_win10] FAIL: need Python 3.10 or newer
+  goto :end_fail
+)
+
+%PIPY% -m pip install -q -r requirements-win10.txt
 if errorlevel 1 (
   echo [build_win10] FAIL: pip install
   goto :end_fail
 )
 
-%PIPY% -m PyInstaller --noconfirm --clean bm-mouse-click.spec
+%PIPY% build.py win10
 if errorlevel 1 (
-  echo [build_win10] FAIL: PyInstaller
+  echo [build_win10] FAIL: build.py
   goto :end_fail
 )
 
-if not exist "%EXE_PATH%" (
-  echo [build_win10] FAIL: missing %EXE_NAME% in dist
+if not exist "%EXE_NAME%" (
+  echo [build_win10] FAIL: missing %EXE_NAME%
   goto :end_fail
 )
-move /y "%EXE_PATH%" "%EXE_NAME%" >nul
-if errorlevel 1 (
-  echo [build_win10] FAIL: move output to project root
-  goto :end_fail
-)
-call :clean_dir_contents "build"
-call :clean_dir_contents "dist"
 
 echo [build_win10] OK: %CD%\%EXE_NAME%
 goto :end_ok
 
 :find_python
+set "PIPY="
 for %%V in (3.14 3.13 3.12 3.11 3.10) do (
   where py >nul 2>&1
   if not errorlevel 1 (
@@ -64,6 +65,14 @@ if not errorlevel 1 (
   python -c "import sys; assert sys.version_info>=(3,10)" 2>nul
   if not errorlevel 1 (
     set "PIPY=python"
+    goto :find_ok
+  )
+)
+where py >nul 2>&1
+if not errorlevel 1 (
+  py -c "import sys; assert sys.version_info>=(3,10)" 2>nul
+  if not errorlevel 1 (
+    set "PIPY=py"
     goto :find_ok
   )
 )

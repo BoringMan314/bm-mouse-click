@@ -3,7 +3,6 @@ setlocal EnableExtensions
 cd /d "%~dp0"
 
 set "EXE_NAME=bm-mouse-click_win7.exe"
-set "EXE_PATH=dist\%EXE_NAME%"
 set "PIPY="
 
 echo [build_win7] Build Win7: %EXE_NAME%
@@ -14,6 +13,8 @@ if not exist "build" mkdir "build" 2>nul
 if not exist "dist" mkdir "dist" 2>nul
 call :clean_dir_contents "build"
 call :clean_dir_contents "dist"
+if exist "bm-mouse-click.spec" del /f /q "bm-mouse-click.spec" 2>nul
+if exist "bm-mouse-click_win7.spec" del /f /q "bm-mouse-click_win7.spec" 2>nul
 if exist "%EXE_NAME%" del /F /Q "%EXE_NAME%" 2>nul
 
 call :find_python
@@ -22,29 +23,22 @@ if errorlevel 1 goto :end_fail
 echo [build_win7] using:
 %PIPY% -c "import sys; print(sys.executable); print(sys.version)"
 
-%PIPY% -m pip install -r requirements-win7.txt
+%PIPY% -m pip install -q -r requirements-win7.txt
 if errorlevel 1 (
   echo [build_win7] FAIL: pip install
   goto :end_fail
 )
 
-%PIPY% -m PyInstaller --noconfirm --clean bm-mouse-click_win7.spec
+%PIPY% build.py win7
 if errorlevel 1 (
-  echo [build_win7] FAIL: PyInstaller
+  echo [build_win7] FAIL: build.py
   goto :end_fail
 )
 
-if not exist "%EXE_PATH%" (
-  echo [build_win7] FAIL: missing %EXE_NAME% in dist
+if not exist "%EXE_NAME%" (
+  echo [build_win7] FAIL: missing %EXE_NAME%
   goto :end_fail
 )
-move /y "%EXE_PATH%" "%EXE_NAME%" >nul
-if errorlevel 1 (
-  echo [build_win7] FAIL: move output to project root
-  goto :end_fail
-)
-call :clean_dir_contents "build"
-call :clean_dir_contents "dist"
 
 echo [build_win7] OK: %CD%\%EXE_NAME%
 goto :end_ok

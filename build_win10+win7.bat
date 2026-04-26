@@ -1,7 +1,6 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-if errorlevel 1 exit /b 1
 
 echo [build_win10+win7] run build_win10 then build_win7
 call "%~dp0build_win10.bat" nopause

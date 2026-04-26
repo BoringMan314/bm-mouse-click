@@ -105,26 +105,15 @@ function Invoke-InVenv {
   if ($LASTEXITCODE -ne 0) {
     throw "Failed dependency install for $OutputName"
   }
-  & "$VenvDir\Scripts\pyinstaller.exe" `
-    --noconfirm `
-    --clean `
-    --distpath "dist" `
-    --onefile `
-    --windowed `
-    --noupx `
-    --name $OutputName `
-    --icon "icons/icon.ico" `
-    --add-data "wav/switch.wav;wav" `
-    main.py
+  $mode = if ($isWin7Chain) { "win7" } else { "win10" }
+  & "$VenvDir\Scripts\python.exe" (Join-Path $PSScriptRoot "build.py") $mode
   if ($LASTEXITCODE -ne 0) {
-    throw "PyInstaller failed for $OutputName"
+    throw "build.py $mode failed for $OutputName"
   }
-  $distExe = Join-Path (Join-Path $PSScriptRoot "dist") "$OutputName.exe"
   $rootExe = Join-Path $PSScriptRoot "$OutputName.exe"
-  if (-not (Test-Path -LiteralPath $distExe)) {
-    throw "Missing built exe in dist: $distExe"
+  if (-not (Test-Path -LiteralPath $rootExe)) {
+    throw "Missing built exe: $rootExe"
   }
-  Move-Item -LiteralPath $distExe -Destination $rootExe -Force
   Ensure-CleanTempDirs
 }
 

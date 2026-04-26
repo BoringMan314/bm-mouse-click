@@ -18,6 +18,7 @@ function Test-CommandExists([string]$cmd) {
 Write-Step "Check required files"
 $required = @(
   "main.py",
+  "build.py",
   "build.ps1",
   "build_mac.sh",
   "requirements-win10.txt",
@@ -49,15 +50,15 @@ if ($WithBuild) {
 
   Write-Step "Verify output files"
   $outputs = @(
-    "dist/bm-mouse-click.exe",
-    "dist/bm-mouse-click_win7.exe"
+    "bm-mouse-click.exe",
+    "bm-mouse-click_win7.exe"
   )
   foreach ($out in $outputs) {
     if (-not (Test-Path $out)) {
       throw "Build output missing: $out"
     }
   }
-  Get-ChildItem dist | Select-Object Name, Length, LastWriteTime
+  Get-ChildItem $outputs | Select-Object Name, Length, LastWriteTime
 }
 
 Write-Host ""

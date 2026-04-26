@@ -120,7 +120,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -PyWin10 "py -3.13" -PyWin7
 
 說明：
 
-- PyInstaller 先輸出至暫存目錄 `dist`，`build_win10.bat`／`build_win7.bat` 會將 exe **搬移到專案根目錄**，再清空 `build`／`dist` 內容。
+- `build.py` 內以 PyInstaller 建置，先輸出至暫存目錄 `dist`，再將 exe **搬移到專案根目錄**，最後清空 `build`／`dist` 並刪除根目錄可能產生的 `*.spec`（不納入版控）。
 - `bm-mouse-click.exe`：使用 `requirements-win10.txt`（Win10/11 工具鏈）。
 - `bm-mouse-click_win7.exe`：使用 `requirements-win7.txt`（Win7 相容工具鏈）。
 - 在 Win7 上請執行 `bm-mouse-click_win7.exe`，不要執行 `bm-mouse-click.exe`。
@@ -179,9 +179,10 @@ python main.py
 | 路徑                            | 說明                              |
 | ----------------------------- | ------------------------------- |
 | `main.py`                      | 主程式（UI、熱鍵、連點、系統匣、防多開）           |
+| `build.py`                      | Windows 單檔建置邏輯（由 `.bat`／`build.ps1` 呼叫 `win10`／`win7`） |
 | `build_win7.bat`               | Win7 單檔打包（最終 exe 於專案根目錄）          |
 | `build_win10.bat`              | Win10 單檔打包（最終 exe 於專案根目錄）         |
-| `build_win10+win7.bat`         | Win10 + Win7 雙版（呼叫 `build.ps1`） |
+| `build_win10+win7.bat`         | Win10 + Win7 雙版（依序呼叫 `build_win10.bat`、`build_win7.bat`） |
 | `build.ps1`                    | Windows 雙版打包腳本（PowerShell）      |
 | `check.ps1`                    | 檢查腳本（可選 `-WithBuild` 驗證打包）      |
 | `build_mac.sh`                 | macOS 打包腳本                      |
