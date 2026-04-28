@@ -120,7 +120,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -PyWin10 "py -3.13" -PyWin7
 
 說明：
 
-- `build.py` 內以 PyInstaller 建置，先輸出至暫存目錄 `dist`，再將 exe **搬移到專案根目錄**，最後清空 `build`／`dist` 並刪除根目錄可能產生的 `*.spec`（不納入版控）。
+- `build.py` 內以 PyInstaller 建置（`--specpath` 設於 `build`），先輸出至暫存目錄 `dist`，再將 exe **搬移到專案根目錄**，最後清空 `build`／`dist`。
 - `bm-mouse-click.exe`：使用 `requirements-win10.txt`（Win10/11 工具鏈）。
 - `bm-mouse-click_win7.exe`：使用 `requirements-win7.txt`（Win7 相容工具鏈）。
 - 在 Win7 上請執行 `bm-mouse-click_win7.exe`，不要執行 `bm-mouse-click.exe`。
